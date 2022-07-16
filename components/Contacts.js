@@ -5,7 +5,12 @@ import { alertService } from "../services/alert.service";
 import * as gtag from '@lib/ga'
 
 export default function Contacts() {
-  
+
+  // constant containing regex email validation
+  const regexEmailValidationPattern = "^([a-zA-Z0-9_\\-\\.]+)@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.)|(([a-zA-Z0-9\\-]+\\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\\]?)$";
+  const formPlaceHolderTextStyle = "text-sm text-gray-600 mx-4 mt-4";
+  const borderedTextStyle = "font-light rounded-md border focus:outline-none py-2 mt-2 px-1 mx-4 focus:ring-2 focus:border-none ring-blue-500"
+
   const [options] = useState({
     autoClose: true,
     keepAfterRouteChange: false
@@ -27,7 +32,7 @@ export default function Contacts() {
       label: formData,
     });
 
-    // resetting fields
+    // resetting fields as the form is submitted
     e.currentTarget.reset();
   
     const response = await fetch('/api/mail', {
@@ -36,9 +41,8 @@ export default function Contacts() {
     }).then(result => result.json()).then(result => {
       if (result.success===true) {
         alertService.success(result.message, options);
-      } else {
-        alertService.error(result.message, options);
       }
+      alertService.error(result.message, options);
     });
 
   }
@@ -55,7 +59,11 @@ export default function Contacts() {
           <div className="md:ml-4">
             <header className="">
               <h1 className="text-gray-50 font-semibold text-2xl">
-                Wanna talk about technology, business or anything else?
+                Interested in one of my{" "}
+                <a
+                  href="/services" rel="noopener noreferrer"
+                  className="text-gray-50 font-bold text-2xl border-b-2 border-gray-50"
+                > services </a>?
               </h1>
               <p className="font-light text-base text-gray-200 mt-2">
                 Fill in the details and I'll get back to you as soon as possible.
@@ -63,26 +71,6 @@ export default function Contacts() {
             </header>
             {/* Social Buttons */}
             <div className="icons-container inline-flex flex-col my-20">
-              {/* Social Buttons
-              <div className="flex flex-row items-center space-x-6 rounded-md border border-[#02044A] hover:border hover:border-blue-500 p-4">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  fill="currentColor"
-                  className="bi bi-telephone-fill h-4 w-4 text-blue-500"
-                  viewBox="0 0 16 16"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M1.885.511a1.745 1.745 0 0 1 2.61.163L6.29 2.98c.329.423.445.974.315 1.494l-.547 2.19a.678.678 0 0 0 .178.643l2.457 2.457a.678.678 0 0 0 .644.178l2.189-.547a1.745 1.745 0 0 1 1.494.315l2.306 1.794c.829.645.905 1.87.163 2.611l-1.034 1.034c-.74.74-1.846 1.065-2.877.702a18.634 18.634 0 0 1-7.01-4.42 18.634 18.634 0 0 1-4.42-7.009c-.362-1.03-.037-2.137.703-2.877L1.885.511z"
-                  />
-                </svg>
-                <p className="text-gray-50 font-light text-sm">
-                  {userData.phone}
-                </p>
-              </div>
-              */}
               <div className="flex flex-row items-center space-x-6 rounded-md border border-[#02044A] hover:border hover:border-blue-500 p-4">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -144,46 +132,55 @@ export default function Contacts() {
             </div>
           </div>
           <form className="form rounded-lg bg-white p-4 flex flex-col" method="post" onSubmit={sendEmail}>
-            <label htmlFor="name" className="text-sm text-gray-600 mx-4">
+            <label htmlFor="name" className={formPlaceHolderTextStyle}>
               {" "}
               Your Name
             </label>
             <input
               type="text"
-              className="font-light rounded-md border focus:outline-none py-2 mt-2 px-1 mx-4 focus:ring-2 focus:border-none ring-blue-500"
+              className={borderedTextStyle}
               name="name"
               placeholder="John Doe"
               required
             />
-            <label htmlFor="email" className="text-sm text-gray-600 mx-4 mt-4">
+            <label htmlFor="email" className={formPlaceHolderTextStyle}>
               Your email
             </label>
             <input
               type="text"
-              className="font-light rounded-md border focus:outline-none py-2 mt-2 px-1 mx-4 focus:ring-2 focus:border-none ring-blue-500"
+              className={borderedTextStyle}
               name="email"
-              placeholder="John.Doe@gmail.com"
+              placeholder="john.doe@example.com"
+              pattern={regexEmailValidationPattern}
+              title="Emails should be in a valid format like john.doe@example.com"
               required
             />
-            <label
-              htmlFor="message"
-              className="text-sm text-gray-600 mx-4 mt-4"
-            >
-              Your need
+            <label htmlFor="message" className={formPlaceHolderTextStyle}>
+              Your request
             </label>
             <textarea
               rows="4"
               type="text"
-              className="font-light rounded-md border focus:outline-none py-2 mt-2 px-1 mx-4 focus:ring-2 focus:border-none ring-blue-500"
+              className={borderedTextStyle}
               name="message"
-              placeholder="I need a ..."
+              placeholder="I need a ... dollar, dollar a dollar is what I need (hey hey)"
               required
             ></textarea>
+            <div className="mx-4 mt-4">
+              <input type="checkbox" name="consent" required/>
+              <label htmlFor="consent" className={formPlaceHolderTextStyle}>
+                I have read and agree to the{" "}
+                <a
+                  href="/privacy-policy" rel="noopener noreferrer"
+                  className="text-gray-800 border-b-2 border-gray-800 font-bold"
+                > privacy policy </a>{" "} of this site.
+              </label>
+            </div>
             <button
               type="submit"
               className="bg-blue-500 rounded-md w-1/2 mx-4 mt-8 py-2 text-gray-50 text-xs font-bold"
             >
-              Send Message
+              Send
             </button>
           </form>
         </div>
